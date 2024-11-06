@@ -10,10 +10,13 @@ import io.jsonwebtoken.SignatureAlgorithm;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 import io.jsonwebtoken.Claims;
+import javax.crypto.spec.SecretKeySpec;
+import java.util.Base64;
 
 import java.util.HashMap;
 import java.util.function.Function;
 import java.util.Date;
+import java.security.Key;
 import javax.crypto.SecretKey;
 /**
  *
@@ -23,26 +26,30 @@ import javax.crypto.SecretKey;
 public class JwtUtilService {
      private static final String JWT_SECRET_KEY = "TExBVkVfTVVZX1NFQ1JFVEzE3Zmxu7BSGSJx72BSBXM";
     private static final long JWT_TIME_VALIDITY = 1000 * 60  * 15;
+    Key secretKey = new SecretKeySpec(Base64.getDecoder().decode(JWT_SECRET_KEY), SignatureAlgorithm.HS256.getJcaName());
+
 
     public String generateToken(UserDetails userDetails) {
         var claims = new HashMap<String, Object>();
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TIME_VALIDITY))
-                .signWith(SignatureAlgorithm.HS256, JWT_SECRET_KEY)
+               .claims(claims)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                // the token will be expired in 10 hours
+                .expiration(new Date(System.currentTimeMillis() + 1000* 60 * 60 *15))
+                .signWith(secretKey)  // Usamos la clave en formato seguro
                 .compact();
     }
 
     public String generateRefreshToken(UserDetails userDetails) {
         var claims = new HashMap<String, Object>();
         return Jwts.builder()
-                .setClaims(claims)
-                .setSubject(userDetails.getUsername())
-                .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis() + JWT_TIME_VALIDITY))
-                .signWith(SignatureAlgorithm.HS256, JWT_SECRET_KEY)
+                .claims(claims)
+                .subject(userDetails.getUsername())
+                .issuedAt(new Date(System.currentTimeMillis()))
+                // the token will be expired in 10 hours
+                .expiration(new Date(System.currentTimeMillis() + 1000* 60 * 60 *15))
+                .signWith(secretKey)
                 .compact();
     }
 

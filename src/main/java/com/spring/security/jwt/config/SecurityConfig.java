@@ -4,6 +4,7 @@
  */
 package com.spring.security.jwt.config;
 
+import com.spring.security.jwt.filter.JwtRequestFilter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -28,7 +29,8 @@ import static org.springframework.security.config.Customizer.withDefaults;
 @Configuration
 public class SecurityConfig {
    
-
+ @Autowired
+    private JwtRequestFilter jwtRequestFilter;
     @Bean
     SecurityFilterChain web(HttpSecurity http) throws Exception{
         http
@@ -37,7 +39,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests((authorize) -> authorize
                                 .requestMatchers("/api/v1/auth/**").permitAll()
                                 .anyRequest().authenticated()
-                        )
+                        )                .addFilterBefore(jwtRequestFilter, UsernamePasswordAuthenticationFilter.class)
+
                 .sessionManagement((session) -> session
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );

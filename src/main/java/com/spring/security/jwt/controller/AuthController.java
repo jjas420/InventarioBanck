@@ -5,6 +5,7 @@
 package com.spring.security.jwt.controller;
 
 import com.spring.security.jwt.dto.AuthRequestDto;
+import com.spring.security.jwt.dto.AuthResponseDto;
 import com.spring.security.jwt.model.UserModel;
 import com.spring.security.jwt.repository.UserRepository;
 import com.spring.security.jwt.service.JwtUtilService;
@@ -41,6 +42,9 @@ public class AuthController {
     @PostMapping("/login")
     public ResponseEntity<?> auth(@RequestBody AuthRequestDto authRequestDto) {
    try {
+       
+       
+       
         //1. Gestion authenticationManager
         this.authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(
                 authRequestDto.getUser(), authRequestDto.getPassword()
@@ -51,8 +55,10 @@ public class AuthController {
 
         //3. Generar token
         String jwt = this.jwtUtilService.generateToken(userDetails);
+         AuthResponseDto authResponseDto = new AuthResponseDto();
+            authResponseDto.setToken(jwt);
 
-        return new ResponseEntity<>( jwt ,HttpStatus.OK);
+        return new ResponseEntity<>( authResponseDto ,HttpStatus.OK);
    }catch (Exception e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Error Authetication:::" + e.getMessage());
         }
